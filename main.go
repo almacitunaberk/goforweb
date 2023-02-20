@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 )
 
@@ -9,20 +10,22 @@ const PORT = ":8080"
 
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	n, err := fmt.Fprintf(w, "This is home page");
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(fmt.Sprintf("Bytes written to HTTP Response Writer was %d \n", n));
+	renderTemplate(w, "home.page.tmpl")
 }
 
 
 func About(w http.ResponseWriter, r *http.Request) {
-	n, err := fmt.Fprintf(w, "This is about page");
+	renderTemplate(w, "about.page.tmpl")
+}
+
+func renderTemplate(w http.ResponseWriter, tmpl string) {
+	parsedTemplate, _ := template.ParseFiles("./templates/" + tmpl);
+	err := parsedTemplate.Execute(w, nil)
 	if err != nil {
 		fmt.Println(err)
+		return;
 	}
-	fmt.Println(fmt.Sprintf("Bytes written to HTTP Response Writer was %d \n", n));
+
 }
 
 func main() {
