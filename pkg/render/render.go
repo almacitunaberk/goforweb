@@ -6,11 +6,21 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/almacitunaberk/goforweb/pkg/config"
 )
+
+var app *config.AppConfig
+
+// Sets the AppConfig for the Render package
+func NewTemplates(a *config.AppConfig) {
+	app = a;
+}
 
 // var templateCache = make(map[string]*template.Template)
 
 func RenderTemplate(w http.ResponseWriter, tmpl string) {
+	/* OLD WAY of caching before we created AppConfig file
 	// Create a Cache for Template
 	templateCache, err := createTemplateCache();
 	if err != nil {
@@ -37,9 +47,36 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	if err != nil {
 		log.Println(err)
 	}
+	*/
+	var templateCache map[string]*template.Template
+	if app.UseCache {
+		templateCache = app.TemplateCache;
+	} else {
+		templateCache, _ = CreateTemplateCache();
+	}
+
+	template, ok := templateCache[tmpl];
+
+	if !ok {
+		log.Fatal("Couldn't find the template")
+	}
+
+	buf := new(bytes.Buffer);
+
+	err := template.Execute(buf, nil);
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = buf.WriteTo(w);
+
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-func createTemplateCache() (map[string]*template.Template, error) {
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	templateCache := make(map[string]*template.Template)
 
 	// Get all files named *.page.tmpl from ./templates
