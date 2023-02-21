@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/almacitunaberk/goforweb/pkg/config"
+	"github.com/almacitunaberk/goforweb/pkg/models"
 )
 
 var app *config.AppConfig
@@ -19,7 +20,17 @@ func NewTemplates(a *config.AppConfig) {
 
 // var templateCache = make(map[string]*template.Template)
 
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+// This function adds app-wide shared data to the template
+func AddDefaultData(templateData *models.TemplateData) *models.TemplateData {
+	newStringMap := make(map[string]string)
+	newStringMap["test"] = "You bitch"
+	newData := &models.TemplateData{
+		StringMap: newStringMap,
+	}
+	return newData
+}
+
+func RenderTemplate(w http.ResponseWriter, tmpl string, data *models.TemplateData) {
 	/* OLD WAY of caching before we created AppConfig file
 	// Create a Cache for Template
 	templateCache, err := createTemplateCache();
@@ -63,7 +74,9 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 
 	buf := new(bytes.Buffer);
 
-	err := template.Execute(buf, nil);
+	data = AddDefaultData(data);
+
+	err := template.Execute(buf, data);
 
 	if err != nil {
 		log.Println(err)
