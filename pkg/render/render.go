@@ -22,12 +22,7 @@ func NewTemplates(a *config.AppConfig) {
 
 // This function adds app-wide shared data to the template
 func AddDefaultData(templateData *models.TemplateData) *models.TemplateData {
-	newStringMap := make(map[string]string)
-	newStringMap["test"] = "You bitch"
-	newData := &models.TemplateData{
-		StringMap: newStringMap,
-	}
-	return newData
+	return templateData
 }
 
 func RenderTemplate(w http.ResponseWriter, tmpl string, data *models.TemplateData) {
