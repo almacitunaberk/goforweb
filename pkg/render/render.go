@@ -1,22 +1,83 @@
 package render
 
 import (
-	"fmt"
+	"bytes"
 	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
-var templateCache = make(map[string]*template.Template)
+// var templateCache = make(map[string]*template.Template)
 
-func RenderTemplateTest(w http.ResponseWriter, tmpl string) {
-	parsedTemplate, _ := template.ParseFiles("./templates/" + tmpl, "./templates/base.layout.tmpl");
-	err := parsedTemplate.Execute(w, nil)
+func RenderTemplate(w http.ResponseWriter, tmpl string) {
+	// Create a Cache for Template
+	templateCache, err := createTemplateCache();
 	if err != nil {
-		fmt.Println(err)
-		return;
+		log.Fatal(err)
+	}
+	// Get requested Template from Cache
+	template, ok := templateCache[tmpl]
+	if !ok {
+		log.Fatal("Couldn't find the template")
+	}
+
+	// For error handling reasons, instead of writing to the HTTP ResponseWrite object,
+	//		we create a byte buffer and try to write it there
+	buf := new(bytes.Buffer)
+
+	err = template.Execute(buf, nil)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Render the template
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		log.Println(err)
 	}
 }
+
+func createTemplateCache() (map[string]*template.Template, error) {
+	templateCache := make(map[string]*template.Template)
+
+	// Get all files named *.page.tmpl from ./templates
+	pages, err := filepath.Glob("./templates/*.page.tmpl")
+
+	if err != nil {
+		return templateCache, err
+	}
+
+	// Range through all pages
+	for _, page := range pages {
+		// First, get the name of the template without the preceding folder names. EX: home.page.tmpl
+		name := filepath.Base(page);
+		// Then, parse the template file with the given name AND store that parsed template in a template called whatever the value of name is
+		templateSet, err := template.New(name).ParseFiles(page)
+		if err != nil {
+			return templateCache, err
+		}
+		// Then, we need to look for the layouts in the app. We want to parse all of them at once so that it is saved into the cache and
+		//		can be fetched very quickly
+		matches, err := filepath.Glob("./templates/*.layout.tmpl")
+		if err != nil {
+			return templateCache, err
+		}
+		if len(matches) > 0 {
+			// If there are layouts, then parse those layouts AND ADD THEM to templateSet variable
+			templateSet, err = templateSet.ParseGlob("./templates/*layout.tmpl")
+			if err != nil {
+				return templateCache, err
+			}
+		}
+		// Set the created templateSet to the cache
+		templateCache[name] = templateSet;
+	}
+	return templateCache, nil
+}
+
+/* EASY WAY OF CACHING HTML TEMPLATES, WE WILL USE A MORE COMPLEX BUT BETTER METHOD
 
 func RenderTemplate(w http.ResponseWriter, t string) {
 	var tmpl *template.Template;
@@ -57,3 +118,4 @@ func createTemplateCache(t string) error {
 	templateCache[t] = tmpl;
 	return nil;
 }
+*/
