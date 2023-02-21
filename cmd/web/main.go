@@ -22,13 +22,24 @@ func main() {
 	}
 	app.TemplateCache = templateCache
 	app.UseCache = false
-	render.NewTemplates(&app)
 	repo := handlers.NewRepo(&app)
+	render.NewTemplates(&app)
 	handlers.NewHandlers(repo)
+	/*
 	http.HandleFunc("/", handlers.Repo.Home)
 	http.HandleFunc("/about", handlers.Repo.About)
-
+	*/
 	fmt.Println(fmt.Sprintf("Server listening on port %s", PORT))
 
-	 _ = http.ListenAndServe(PORT, nil)
+	// _ = http.ListenAndServe(PORT, nil)
+	srv := &http.Server{
+		Addr: PORT,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
