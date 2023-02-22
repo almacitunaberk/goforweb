@@ -33,7 +33,9 @@ func main() {
 
 	templateCache, err := render.CreateTemplateCache()
 	if err != nil {
-		log.Fatal("Cannot create template cache");
+		log.Println("Cannot create template cache");
+		log.Println(err)
+		return
 	}
 	app.TemplateCache = templateCache
 	app.UseCache = false
