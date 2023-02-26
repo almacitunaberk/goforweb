@@ -9,6 +9,7 @@ import (
 
 	"github.com/almacitunaberk/goforweb/pkg/config"
 	"github.com/almacitunaberk/goforweb/pkg/models"
+	"github.com/justinas/nosurf"
 )
 
 var app *config.AppConfig
@@ -21,11 +22,12 @@ func NewTemplates(a *config.AppConfig) {
 // var templateCache = make(map[string]*template.Template)
 
 // This function adds app-wide shared data to the template
-func AddDefaultData(templateData *models.TemplateData) *models.TemplateData {
+func AddDefaultData(templateData *models.TemplateData, r *http.Request) *models.TemplateData {
+	templateData.CSRFToken = nosurf.Token(r)
 	return templateData
 }
 
-func RenderTemplate(w http.ResponseWriter, tmpl string, data *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, data *models.TemplateData) {
 	/* OLD WAY of caching before we created AppConfig file
 	// Create a Cache for Template
 	templateCache, err := createTemplateCache();
@@ -69,7 +71,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, data *models.TemplateDat
 
 	buf := new(bytes.Buffer);
 
-	data = AddDefaultData(data);
+	data = AddDefaultData(data, r);
 
 	err := template.Execute(buf, data);
 

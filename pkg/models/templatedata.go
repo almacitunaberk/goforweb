@@ -1,5 +1,7 @@
 package models
 
+import "github.com/almacitunaberk/goforweb/pkg/forms"
+
 // Template Data type to pass data to templates
 // 		In HTML files, the required data will be defined with a name. But the actual data type may
 //		be something else. This is why we have couple of map types. The last Data field is a mapping
@@ -15,4 +17,5 @@ type TemplateData struct {
 	Flash string
 	Warning string
 	Error string
+	Form *forms.Form
 }
