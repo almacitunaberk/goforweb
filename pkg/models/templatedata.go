@@ -1,6 +1,8 @@
 package models
 
-import "github.com/almacitunaberk/goforweb/pkg/forms"
+import (
+	"github.com/almacitunaberk/goforweb/pkg/forms"
+)
 
 // Template Data type to pass data to templates
 // 		In HTML files, the required data will be defined with a name. But the actual data type may
