@@ -15,7 +15,7 @@ import (
 var app *config.AppConfig
 
 // Sets the AppConfig for the Render package
-func NewTemplates(a *config.AppConfig) {
+func NewRenderer(a *config.AppConfig) {
 	app = a;
 }
 
@@ -30,7 +30,7 @@ func AddDefaultData(templateData *models.TemplateData, r *http.Request) *models.
 	return templateData
 }
 
-func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, data *models.TemplateData) {
+func Template(w http.ResponseWriter, r *http.Request, tmpl string, data *models.TemplateData) {
 	/* OLD WAY of caching before we created AppConfig file
 	// Create a Cache for Template
 	templateCache, err := createTemplateCache();
